@@ -1,0 +1,53 @@
+def foldr' : Thunk(
+  Thunk (Int -> Thunk (Ret Int) -> Ret Int)
+  -> Thunk (Ret Int) -> Thunk (LList Int)
+  -> Ret Int
+) = {
+  rec foldr' -> fn f -> fn base -> fn xs -> (
+    do xsv <- ! xs .run();
+    match xsv
+    | Nil() -> ! base
+    | Cons(x', xs') -> ! f x' { ! foldr' f base xs' }
+    end
+  )
+} end
+
+def overcomplicated_add : Thunk (Int -> Thunk (Ret Int) -> Ret Int) = {
+  fn x -> fn overcomplicated_y -> (
+    do y <- ! overcomplicated_y;
+    ! add x y
+  )
+} end
+
+def xs~ : Thunk (LList Int) = {
+  comatch
+  | .run() -> ret Cons(1, {
+    comatch
+    | .run() -> ret Cons(1, {
+      comatch
+      | .run() -> ret Cons(4, {
+        comatch
+        | .run() -> ret Cons(5, {
+          comatch
+          | .run() -> ret Cons(1, {
+            comatch
+            | .run() -> ret Cons(4, {
+              comatch
+              | .run() -> ret Nil()
+              end
+            }) end
+          }) end
+        }) end
+      }) end
+    }) end
+  }) end
+} end
+
+main
+  let lazy_zero = { ret 0 }
+  in
+  do sum <- ! foldr' overcomplicated_add lazy_zero xs~;
+  ! write_int sum {
+    ! exit 0
+  }
+end
