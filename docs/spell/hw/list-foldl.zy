@@ -1,0 +1,28 @@
+def hd-int : Thunk (List Int -> Ret (Option Int)) = {
+  fn xs -> (
+    match xs
+    | Nil() -> ret None()
+    | Cons(x, _) -> ret Some(x)
+    end
+  )
+} end
+
+def foldl' : Thunk(Thunk (Int -> Int -> Ret Int) -> Int -> List Int -> Ret Int) = {
+  rec foldl' -> fn f -> fn acc -> fn xs -> (
+    match xs
+    | Nil() -> ret acc
+    | Cons(x, xs) ->
+      do acc' <- ! f acc x;
+      ! foldl' f acc' xs
+    end
+  )
+} end
+
+def xs : List Int = Cons(1, Cons(1, Cons(4, Cons(5, Cons(1, Cons(4, Nil())))))) end
+
+main
+  do sum <- ! foldl' add 0 xs;
+  ! write_int sum {
+    ! exit 0
+  }
+end
