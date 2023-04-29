@@ -1,0 +1,28 @@
+codata Counter where
+| .num(): Ret Int
+| .incr(Int): Counter
+| .fmt(): Ret String
+end
+
+// We can use `this` (or `self`) as in normal OO languages
+def mk_counter : Thunk(Int -> Counter) = {
+  rec mk_counter ->
+  fn n -> rec this ->
+    comatch
+    | .num() -> ret n
+    | .incr(d) -> do sum <- ! add n d;
+                  ! mk_counter sum
+    | .fmt() -> ! int_to_str n
+    end
+} end
+
+main
+  let counter_42: Thunk(Counter) = {
+    ! mk_counter 42
+  } in
+  do s <- ! counter_42 .fmt();
+  ! write_line s {
+    do n <- ! counter_42 .incr(-42) .num();
+    ! exit n 
+  }
+end
