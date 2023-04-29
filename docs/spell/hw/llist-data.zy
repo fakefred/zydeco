@@ -1,0 +1,12 @@
+data LList' (A : VType) where
+  | Nil()
+  | Cons(A, Thunk (Ret (LList' A)))
+end
+
+def xs~ : LList' Int =
+  Cons(1, { ret Cons(1, { ret Nil() }) })
+end
+
+main
+  ! exit 0
+end
